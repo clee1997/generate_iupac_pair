@@ -1,7 +1,6 @@
-
 import os
 import pandas as pd
-import numpy
+import numpy as np
 import cv2
 from fpdf import FPDF, XPos, YPos
 from PIL import Image
@@ -9,7 +8,6 @@ from pdf2image import convert_from_path
 import ocrmypdf
 import nltk
 import re
-import regex
 
 
 from pdfminer.layout import LAParams, LTTextBox
@@ -86,7 +84,7 @@ def clean_up_new_line(in_str):
 
 def parse_pdf_to_df(pdf_path, char_margin=2.0, line_margin=2.0, boxes_flow=None):
     df = pd.DataFrame() # create empty dataframe
-    df['iupac_noised'] = [] # not sure about this one. do we have to specify df size from the get-go?
+    df['iupac_noised'] = '' # not sure about this one. do we have to specify df size from the get-go?
 
     fp = open(pdf_path, 'rb')
 
@@ -108,15 +106,12 @@ def parse_pdf_to_df(pdf_path, char_margin=2.0, line_margin=2.0, boxes_flow=None)
             print(f'Processing next textbox... page num = {page_num}, item_idx = {item_idx}')
         
             if isinstance(textbox, LTTextBox):
-            ocr_text = textbox.get_text()
-            # ori_text = pair_df['iupac'][item_idx]
-            # print(f'ori_text = {ori_text}, \n ocr_text(before newline clean-up) = {ocr_text}')
+                ocr_text = textbox.get_text()
+                
+                ocr_text = clean_up_new_line(ocr_text)
+                df.at[item_idx, 'iupac_noised'] = ocr_text
 
-            # clean up new line
-            ocr_text = clean_up_new_line(ocr_text)
-            df.at[item_idx, 'iupac_noised'] = ocr_text
-
-            item_idx +=1
+                item_idx +=1
 
     return df
 
