@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import cv2
@@ -15,12 +14,13 @@ def add_gaussian_noise(image):
     noisy = image + gauss
     return noisy
 
-# does this one also assume opencv image? yes. 
+# assumes cv2 image 
 def resize_image(image, scaling_factor = 0.7): 
     image = cv2.resize(image, dsize=(0,0), fx=scaling_factor, fy=scaling_factor) 
     return image
 
-def noise_image(image, method = 2, scaling_factor = 0.5):
+# assumes cv2 image 
+def noise_image(image, method = 2, scaling_factor = 0.7):
     # method: 1 - gaussian / 2 - resize(deprecate resolution) / 3 - both
 
     if method == 1:

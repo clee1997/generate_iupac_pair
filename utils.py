@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import cv2
-from fpdf2 import FPDF, XPos, YPos
+from fpdf import FPDF, XPos, YPos
 from PIL import Image
 from pdf2image import convert_from_path
 import ocrmypdf
@@ -44,7 +44,7 @@ class PDF(FPDF):
         self.set_font("Helvetica", size=12)
 
         for index, row in df.iterrows():
-            print(row)
+            # print(row)
 
             with self.offset_rendering() as dummy:
               dummy.multi_cell(w=60, h=5, txt=row['iupac'])
@@ -77,13 +77,14 @@ def run_ocr(input_path, output_path):
 
 
 def clean_up_new_line(in_str):
-  
-    res = re.sub(r'\n[^$]', '-', in_str)
-    res = re.sub(r'-(-)+', '-', res)
+
+    res = re.sub(r"(\s)*\n(\s)*", '-', in_str)
+    res = re.sub(r"-$", '', res)
+    res = re.sub(r"--", '-', res)
 
     return res
 
-def parse_pdf_to_df(pdf_path, char_margin=2.0, line_margin=2.0, boxes_flow=None):
+def parse_pdf_to_df(pdf_path, clean_up = True, char_margin=2.0, line_margin=2.3, boxes_flow=None):
     df = pd.DataFrame() # create empty dataframe
     df['iupac_noised'] = '' # not sure about this one. do we have to specify df size from the get-go?
 
@@ -98,18 +99,20 @@ def parse_pdf_to_df(pdf_path, char_margin=2.0, line_margin=2.0, boxes_flow=None)
     item_idx = 0 # idx for each iupac identifier. nothing to do with page number.
     for page_num, page in enumerate(pages):
 
-        print(f'Processing next page... page num = {page_num}')
+        # print(f'Processing next page... page num = {page_num}')
         interpreter.process_page(page)
         page_layout = device.get_result()
 
         for textbox in page_layout: # each textbox in a page # well assuming this returns int he r
             
-            print(f'Processing next textbox... page num = {page_num}, item_idx = {item_idx}')
+            # print(f'Processing next textbox... page num = {page_num}, item_idx = {item_idx}')
         
             if isinstance(textbox, LTTextBox):
                 ocr_text = textbox.get_text()
-                
-                ocr_text = clean_up_new_line(ocr_text)
+
+                if clean_up == True:
+                    ocr_text = clean_up_new_line(ocr_text)
+
                 df.at[item_idx, 'iupac_noised'] = ocr_text
 
                 item_idx +=1
@@ -118,9 +121,17 @@ def parse_pdf_to_df(pdf_path, char_margin=2.0, line_margin=2.0, boxes_flow=None)
 
 def merge_noised_df(df_ori, df_noised):
 
-    assert (df_ori.shape[0] == df_noised.shape[0]), 'two dataframes have different number of rows'
+    if not (df_ori.shape[0] == df_noised.shape[0]):
+        print('/n/n')
+        print(f'two dataframes have different number of rows' )
+        print(f'df_ori.shape[0] = {df_ori.shape[0]} and df_noised.shape[0] = {df_noised.shape[0]}')
+        print('let us see what happens. would it fail all edit dist test?')
+        print('/n/n')
+
+    # assert (df_ori.shape[0] == df_noised.shape[0]), f'two dataframes have different number of rows, df_ori.shape[0] = {df_ori.shape[0]} and df_noised.shape[0] = {df_noised.shape[0]}'
 
     pair_df = df_ori.copy(deep=True)
+    pair_df = pair_df.reset_index()
     pair_df['iupac_noised'] = '' 
 
     num_rows = df_ori.shape[0]
@@ -134,5 +145,6 @@ def merge_noised_df(df_ori, df_noised):
             pair_df.at[row_idx, 'iupac_noised'] = noised_text
         else:
             print(f'row_idx = {row_idx}, edit dist is too high!! \n')
+            print(f'ori_text = {ori_text}, noised_text = {noised_text}')
 
     return pair_df 
