@@ -2,13 +2,14 @@ import os
 import pandas as pd
 import numpy as np
 import cv2
-from fpdf import FPDF, XPos, YPos
+from fpdf2 import FPDF, XPos, YPos
 from PIL import Image
 from pdf2image import convert_from_path
 import ocrmypdf
 import nltk
 import re
 
+from image_utils import *
 
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfpage import PDFPage
@@ -126,7 +127,6 @@ def merge_noised_df(df_ori, df_noised):
 
     for row_idx in range(num_rows):
         ori_text = pair_df['iupac'][row_idx]
-
         noised_text = df_noised['iupac_noised'][row_idx]
         # noised_text = clean_up_new_line(noised_text) # this has to be done prior to calling this function
 
