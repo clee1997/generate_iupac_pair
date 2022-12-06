@@ -4,12 +4,12 @@ import pandas as pd
 import os
 
 tsv_path = '/Users/chaeeunlee/Downloads/iupac_result/iupac_result.tsv' # or hdd1.
-save_path =  '/Users/chaeeunlee/Downloads/saved/'
-pdf_path_clean = '/Users/chaeeunlee/Downloads/saved/pdf/pdf_clean.pdf' # '/hdd1/chaeeun/.../pdf_clean.pdf'
-pdf_path_noised = '/Users/chaeeunlee/Downloads/saved/pdf/pdf_noised.pdf' # '/hdd1/chaeeun/.../pdf_noised.pdf'
+save_path =  '/Users/chaeeunlee/Downloads/saved_3/'
+pdf_path_clean = '/Users/chaeeunlee/Downloads/saved_3/pdf/pdf_clean.pdf' # '/hdd1/chaeeun/.../pdf_clean.pdf'
+pdf_path_noised = '/Users/chaeeunlee/Downloads/saved_3/pdf/pdf_noised.pdf' # '/hdd1/chaeeun/.../pdf_noised.pdf'
 
 save_df_concat = True
-chunk_size = 5000
+chunk_size = 100
 num_concat = 10
 colnames = ['id', 'iupac', 'inchi'] 
 
@@ -30,7 +30,10 @@ for chunk in df:
     run_ocr(pdf_path_clean, pdf_path_noised)
 
     df_noised = parse_pdf_to_df(pdf_path_noised)
-    pair_df = merge_noised_df(chunk, df_noised)
+    try:
+        pair_df = merge_noised_df(chunk, df_noised)
+    except:
+        continue
 
     frames.append(pair_df)
 

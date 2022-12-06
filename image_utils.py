@@ -15,12 +15,12 @@ def add_gaussian_noise(image):
     return noisy
 
 # assumes cv2 image 
-def resize_image(image, scaling_factor = 0.7): 
+def resize_image(image, scaling_factor = 0.5): 
     image = cv2.resize(image, dsize=(0,0), fx=scaling_factor, fy=scaling_factor) 
     return image
 
 # assumes cv2 image 
-def noise_image(image, method = 2, scaling_factor = 0.7):
+def noise_image(image, method = 2, scaling_factor = 0.5):
     # method: 1 - gaussian / 2 - resize(deprecate resolution) / 3 - both
 
     if method == 1:

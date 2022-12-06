@@ -121,12 +121,9 @@ def parse_pdf_to_df(pdf_path, clean_up = True, char_margin=2.0, line_margin=2.3,
 
 def merge_noised_df(df_ori, df_noised):
 
-    if not (df_ori.shape[0] == df_noised.shape[0]):
-        print('/n/n')
-        print(f'two dataframes have different number of rows' )
-        print(f'df_ori.shape[0] = {df_ori.shape[0]} and df_noised.shape[0] = {df_noised.shape[0]}')
-        print('let us see what happens. would it fail all edit dist test?')
-        print('/n/n')
+    if not (df_ori.shape[0] == df_noised.shape[0]): # then raise error and skip this one. by this one i mean one chunk. so a chunk better be small
+
+        raise Exception(f"two dataframes have different number of rows. df_ori.shape[0] = {df_ori.shape[0]} and df_noised.shape[0] = {df_noised.shape[0]}")
 
     # assert (df_ori.shape[0] == df_noised.shape[0]), f'two dataframes have different number of rows, df_ori.shape[0] = {df_ori.shape[0]} and df_noised.shape[0] = {df_noised.shape[0]}'
 
